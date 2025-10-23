@@ -38,20 +38,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && jwtUtil.validateToken(jwt)) {
                 String username = jwtUtil.getUsernameFromToken(jwt);
                 String role = jwtUtil.getRoleFromToken(jwt);
+                String email = jwtUtil.getEmailFromToken(jwt);
+                String fullName = jwtUtil.getFullNameFromToken(jwt);
+                
+                log.debug("JWT token valid for user: {} with role: {}, email: {}, fullName: {}", 
+                         username, role, email, fullName);
                 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 
                 if (userDetails != null) {
+                    // Chuyển đổi role thành chữ hoa để phù hợp với Spring Security
+                    String normalizedRole = role.toUpperCase();
+                    
                     UsernamePasswordAuthenticationToken authentication = 
                         new UsernamePasswordAuthenticationToken(
                             userDetails, 
                             null, 
-                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
+                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + normalizedRole))
                         );
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.debug("Authentication set for user: {} with role: {} (normalized: {})", username, role, normalizedRole);
+                } else {
+                    log.warn("UserDetails not found for username: {}", username);
                 }
+            } else {
+                log.warn("JWT token validation failed or no token found");
             }
         } catch (Exception ex) {
             log.error("Could not set user authentication in security context", ex);

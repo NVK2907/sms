@@ -68,7 +68,13 @@ public class AuthServiceImpl implements AuthService {
         
         // Tạo tokens
         String primaryRole = roleNames.isEmpty() ? "USER" : roleNames.get(0);
-        String accessToken = jwtUtil.generateAccessToken(user.getUsername(), user.getId(), primaryRole);
+        String accessToken = jwtUtil.generateAccessTokenWithUserInfo(
+            user.getUsername(), 
+            user.getId(), 
+            primaryRole, 
+            user.getEmail(), 
+            user.getFullName()
+        );
         String refreshToken = jwtUtil.generateRefreshToken(user.getUsername(), user.getId());
         
         // Tạo user info
@@ -130,7 +136,13 @@ public class AuthServiceImpl implements AuthService {
         }
         
         // Tạo access token mới
-        String newAccessToken = jwtUtil.generateAccessToken(username, userId, primaryRole);
+        String newAccessToken = jwtUtil.generateAccessTokenWithUserInfo(
+            username, 
+            userId, 
+            primaryRole, 
+            user.getEmail(), 
+            user.getFullName()
+        );
         
         TokenResponse response = new TokenResponse();
         response.setAccessToken(newAccessToken);

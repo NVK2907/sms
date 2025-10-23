@@ -33,6 +33,19 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("role", role);
+        claims.put("username", username);
+        claims.put("tokenType", "access");
+        return createToken(claims, username, expiration);
+    }
+    
+    public String generateAccessTokenWithUserInfo(String username, Long userId, String role, String email, String fullName) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        claims.put("role", role);
+        claims.put("username", username);
+        claims.put("email", email);
+        claims.put("fullName", fullName);
+        claims.put("tokenType", "access");
         return createToken(claims, username, expiration);
     }
     
@@ -68,6 +81,18 @@ public class JwtUtil {
         return getClaimFromToken(token, claims -> claims.get("role", String.class));
     }
     
+    public String getEmailFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("email", String.class));
+    }
+    
+    public String getFullNameFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("fullName", String.class));
+    }
+    
+    public String getTokenTypeFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("tokenType", String.class));
+    }
+    
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }
@@ -93,7 +118,7 @@ public class JwtUtil {
         } catch (MalformedJwtException e) {
             log.error("JWT token không hợp lệ: {}", e.getMessage());
             throw e;
-        } catch (SignatureException e) {
+        } catch (io.jsonwebtoken.security.SignatureException e) {
             log.error("JWT signature không hợp lệ: {}", e.getMessage());
             throw e;
         } catch (IllegalArgumentException e) {
