@@ -247,6 +247,21 @@ class StudentFeaturesControllerTest {
     }
 
     @Test
+    void getWeeklySchedule_WithoutStartDate_ShouldUseCurrentDate() throws Exception {
+        // Given
+        Long studentId = 1L;
+        List<StudentScheduleResponse> expectedSchedule = Arrays.asList(studentScheduleResponse);
+        when(studentScheduleService.getWeeklySchedule(eq(studentId), any(LocalDate.class)))
+                .thenReturn(expectedSchedule);
+
+        // When & Then
+        mockMvc.perform(get("/api/student/{studentId}/schedule/weekly", studentId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].date").exists());
+    }
+
+    @Test
     void getDailySchedule_ShouldReturnSchedule() throws Exception {
         // Given
         Long studentId = 1L;

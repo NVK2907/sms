@@ -125,9 +125,16 @@ public class StudentFeaturesController {
     
     @GetMapping("/{studentId}/schedule/weekly")
     public ResponseEntity<List<StudentScheduleResponse>> getWeeklySchedule(
-            @PathVariable Long studentId, @RequestParam String startDate) {
+            @PathVariable Long studentId, 
+            @RequestParam(required = false) String startDate) {
         try {
-            LocalDate start = LocalDate.parse(startDate);
+            LocalDate start;
+            if (startDate != null && !startDate.isEmpty()) {
+                start = LocalDate.parse(startDate);
+            } else {
+                // Sử dụng ngày hiện tại làm mặc định
+                start = LocalDate.now();
+            }
             List<StudentScheduleResponse> schedule = studentScheduleService.getWeeklySchedule(studentId, start);
             return ResponseEntity.ok(schedule);
         } catch (Exception e) {
