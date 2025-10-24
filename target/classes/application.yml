@@ -36,7 +36,7 @@ server:
 
 # Security Configuration
 jwt:
-  secret: mySecretKey123456789012345678901234567890
+  secret: Q3RfO8dYHj1h7zGQkFbT1qR7f3pLrHHy1q9q0pBtTz9rjFzZc4K0xS0zV+zM6kS9tR4dU3Pj3G1V2Q8Bz6xq5w==
   expiration: 86400000
   refresh-expiration: 604800000
 
