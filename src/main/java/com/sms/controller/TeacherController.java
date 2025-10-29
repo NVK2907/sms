@@ -128,6 +128,30 @@ public class TeacherController {
     }
     
     /**
+     * Tìm kiếm giáo viên
+     */
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<TeacherListResponse>> searchTeachers(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        try {
+            Sort sort = sortDir.equalsIgnoreCase("desc") ? 
+                Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+            Pageable pageable = PageRequest.of(page, size, sort);
+            
+            TeacherListResponse teacherListResponse = teacherService.searchTeachers(keyword, pageable);
+            return ResponseEntity.ok(ApiResponse.success("Tìm kiếm giáo viên thành công", teacherListResponse));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+    
+    /**
      * Lấy danh sách giáo viên theo khoa/bộ môn
      */
     @GetMapping("/department/{department}")

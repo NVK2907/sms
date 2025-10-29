@@ -104,37 +104,32 @@ public class SubjectController {
     }
     
     /**
-     * Lấy danh sách môn học với phân trang
+     * Lấy danh sách môn học với phân trang và tìm kiếm tùy chọn
      */
-    @GetMapping
+    @GetMapping("/search")
     @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<SubjectListResponse>> getAllSubjects(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) String keyword) {
         try {
             Sort sort = sortDir.equalsIgnoreCase("desc") ? 
                 Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
             
-            SubjectListResponse subjectListResponse = subjectService.getAllSubjects(pageable);
+            SubjectListResponse subjectListResponse;
+            
+            // Nếu có keyword tìm kiếm, sử dụng method search với phân trang
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                subjectListResponse = subjectService.searchSubjectsByKeyword(keyword.trim(), pageable);
+            } else {
+                // Nếu không có keyword, lấy tất cả với phân trang
+                subjectListResponse = subjectService.getAllSubjects(pageable);
+            }
+            
             return ResponseEntity.ok(ApiResponse.success("Lấy danh sách môn học thành công", subjectListResponse));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(e.getMessage()));
-        }
-    }
-    
-    /**
-     * Tìm kiếm môn học theo tên
-     */
-    @GetMapping("/search")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
-    public ResponseEntity<ApiResponse<List<SubjectResponse>>> searchSubjectsByName(@RequestParam String subjectName) {
-        try {
-            List<SubjectResponse> subjects = subjectService.searchSubjectsByName(subjectName);
-            return ResponseEntity.ok(ApiResponse.success("Tìm kiếm môn học thành công", subjects));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(e.getMessage()));

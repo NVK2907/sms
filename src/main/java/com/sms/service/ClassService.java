@@ -40,6 +40,11 @@ public interface ClassService {
     ClassListResponse getAllClasses(Pageable pageable);
     
     /**
+     * Tìm kiếm lớp học với phân trang
+     */
+    ClassListResponse searchClasses(Pageable pageable, String keyword);
+    
+    /**
      * Lấy danh sách lớp học theo môn học
      */
     List<ClassResponse> getClassesBySubject(Long subjectId);

@@ -1,6 +1,8 @@
 package com.sms.repository;
 
 import com.sms.entity.Course;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +29,17 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findByTeacherIdAndSemesterId(@Param("teacherId") Long teacherId, @Param("semesterId") Long semesterId);
     
     boolean existsByClassCode(String classCode);
+    
+    @Query("SELECT c FROM Course c " +
+           "LEFT JOIN Subject s ON c.subjectId = s.id " +
+           "LEFT JOIN Semester sem ON c.semesterId = sem.id " +
+           "LEFT JOIN Teacher t ON c.teacherId = t.id " +
+           "LEFT JOIN User u ON t.userId = u.id " +
+           "WHERE (:keyword IS NULL OR :keyword = '' OR " +
+           "       LOWER(c.classCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "       LOWER(s.subjectName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "       LOWER(s.subjectCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "       LOWER(sem.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "       LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Course> searchClasses(@Param("keyword") String keyword, Pageable pageable);
 }

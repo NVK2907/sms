@@ -31,11 +31,13 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     
     boolean existsByUserId(Long userId);
     
-    @Query("SELECT s FROM Student s WHERE " +
+    @Query("SELECT s FROM Student s JOIN User u ON s.userId = u.id WHERE " +
            "(:keyword IS NULL OR :keyword = '' OR " +
            "LOWER(s.studentCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(s.className) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(s.major) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+           "LOWER(s.major) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
            "(:className IS NULL OR :className = '' OR s.className = :className) AND " +
            "(:major IS NULL OR :major = '' OR s.major = :major) AND " +
            "(:courseYear IS NULL OR s.courseYear = :courseYear) AND " +

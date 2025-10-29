@@ -104,21 +104,22 @@ public class ClassController {
     }
     
     /**
-     * Lấy danh sách lớp học với phân trang
+     * Lấy danh sách lớp học với phân trang và tìm kiếm
      */
-    @GetMapping
+    @GetMapping("/search")
     @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
-    public ResponseEntity<ApiResponse<ClassListResponse>> getAllClasses(
+    public ResponseEntity<ApiResponse<ClassListResponse>> searchClasses(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) String keyword) {
         try {
             Sort sort = sortDir.equalsIgnoreCase("desc") ? 
                 Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
             
-            ClassListResponse classListResponse = classService.getAllClasses(pageable);
+            ClassListResponse classListResponse = classService.searchClasses(pageable, keyword);
             return ResponseEntity.ok(ApiResponse.success("Lấy danh sách lớp học thành công", classListResponse));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

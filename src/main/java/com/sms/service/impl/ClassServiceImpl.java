@@ -157,6 +157,24 @@ public class ClassServiceImpl implements ClassService {
     
     @Override
     @Transactional(readOnly = true)
+    public ClassListResponse searchClasses(Pageable pageable, String keyword) {
+        Page<Course> coursePage = courseRepository.searchClasses(keyword, pageable);
+        
+        List<ClassResponse> classResponses = coursePage.getContent().stream()
+            .map(this::convertToClassResponse)
+            .collect(Collectors.toList());
+        
+        return new ClassListResponse(
+            classResponses,
+            coursePage.getTotalElements(),
+            coursePage.getTotalPages(),
+            coursePage.getNumber(),
+            coursePage.getSize()
+        );
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
     public List<ClassResponse> getClassesBySubject(Long subjectId) {
         subjectRepository.findById(subjectId)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy môn học với ID: " + subjectId));

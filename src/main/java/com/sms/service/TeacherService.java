@@ -41,6 +41,11 @@ public interface TeacherService {
     TeacherListResponse getAllTeachers(Pageable pageable);
     
     /**
+     * Tìm kiếm giáo viên theo keyword
+     */
+    TeacherListResponse searchTeachers(String keyword, Pageable pageable);
+    
+    /**
      * Lấy danh sách giáo viên theo khoa/bộ môn
      */
     List<TeacherResponse> getTeachersByDepartment(String department);

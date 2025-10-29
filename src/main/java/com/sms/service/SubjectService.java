@@ -35,9 +35,14 @@ public interface SubjectService {
     SubjectResponse getSubjectByCode(String subjectCode);
     
     /**
-     * Lấy danh sách môn học với phân trang
+     * Lấy danh sách môn học với phân trang và tìm kiếm tùy chọn
      */
     SubjectListResponse getAllSubjects(Pageable pageable);
+    
+    /**
+     * Tìm kiếm môn học với phân trang theo keyword
+     */
+    SubjectListResponse searchSubjectsByKeyword(String keyword, Pageable pageable);
     
     /**
      * Tìm kiếm môn học theo tên

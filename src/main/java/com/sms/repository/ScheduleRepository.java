@@ -23,4 +23,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     
     @Query("SELECT s FROM Schedule s WHERE s.room = :room AND s.dayOfWeek = :dayOfWeek")
     List<Schedule> findByRoomAndDayOfWeek(@Param("room") String room, @Param("dayOfWeek") String dayOfWeek);
+    
+    @Query("SELECT s FROM Schedule s JOIN Course c ON s.classId = c.id WHERE c.teacherId = :teacherId AND s.dayOfWeek = :dayOfWeek")
+    List<Schedule> findByTeacherIdAndDayOfWeek(@Param("teacherId") Long teacherId, @Param("dayOfWeek") Integer dayOfWeek);
 }

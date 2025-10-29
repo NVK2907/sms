@@ -3,6 +3,7 @@ package com.sms.controller;
 import com.sms.dto.request.*;
 import com.sms.dto.response.*;
 import com.sms.service.*;
+import com.sms.service.TeacherScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,9 @@ public class TeacherFeaturesController {
     
     @Autowired
     private SubmissionService submissionService;
+    
+    @Autowired
+    private TeacherScheduleService teacherScheduleService;
     
     // ========== QUẢN LÝ LỚP VÀ SINH VIÊN ==========
     
@@ -337,6 +341,43 @@ public class TeacherFeaturesController {
         try {
             SubmissionResponse submission = submissionService.getSubmissionById(submissionId);
             return ResponseEntity.ok(submission);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    // ========== QUẢN LÝ LỊCH HỌC ==========
+    
+    @GetMapping("/schedule/{teacherId}/weekly")
+    public ResponseEntity<List<TeacherScheduleResponse>> getWeeklySchedule(
+            @PathVariable Long teacherId, @RequestParam String startDate) {
+        try {
+            LocalDate start = LocalDate.parse(startDate);
+            List<TeacherScheduleResponse> schedule = teacherScheduleService.getWeeklySchedule(teacherId, start);
+            return ResponseEntity.ok(schedule);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @GetMapping("/schedule/{teacherId}/daily")
+    public ResponseEntity<List<TeacherScheduleResponse>> getDailySchedule(
+            @PathVariable Long teacherId, @RequestParam String date) {
+        try {
+            LocalDate scheduleDate = LocalDate.parse(date);
+            List<TeacherScheduleResponse> schedule = teacherScheduleService.getDailySchedule(teacherId, scheduleDate);
+            return ResponseEntity.ok(schedule);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @GetMapping("/schedule/{teacherId}/exams/semester/{semesterId}")
+    public ResponseEntity<List<TeacherScheduleResponse>> getExamSchedule(
+            @PathVariable Long teacherId, @PathVariable Long semesterId) {
+        try {
+            List<TeacherScheduleResponse> examSchedule = teacherScheduleService.getExamSchedule(teacherId, semesterId);
+            return ResponseEntity.ok(examSchedule);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

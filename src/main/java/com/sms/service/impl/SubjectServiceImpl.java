@@ -105,6 +105,24 @@ public class SubjectServiceImpl implements SubjectService {
     
     @Override
     @Transactional(readOnly = true)
+    public SubjectListResponse searchSubjectsByKeyword(String keyword, Pageable pageable) {
+        Page<Subject> subjectPage = subjectRepository.findSubjectsByKeyword(keyword, pageable);
+        
+        List<SubjectResponse> subjectResponses = subjectPage.getContent().stream()
+            .map(this::convertToSubjectResponse)
+            .collect(Collectors.toList());
+        
+        return new SubjectListResponse(
+            subjectResponses,
+            subjectPage.getTotalElements(),
+            subjectPage.getTotalPages(),
+            subjectPage.getNumber(),
+            subjectPage.getSize()
+        );
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
     public List<SubjectResponse> searchSubjectsByName(String subjectName) {
         List<Subject> subjects = subjectRepository.findBySubjectNameContainingIgnoreCase(subjectName);
         

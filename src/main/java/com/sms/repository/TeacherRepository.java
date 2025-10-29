@@ -23,6 +23,12 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long> {
     @Query("SELECT t FROM Teacher t WHERE t.department = :department AND t.title = :title")
     List<Teacher> findByDepartmentAndTitle(@Param("department") String department, @Param("title") String title);
     
+    @Query("SELECT t FROM Teacher t JOIN User u ON t.userId = u.id WHERE " +
+           "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(t.teacherCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Teacher> searchTeachers(@Param("keyword") String keyword);
+    
     boolean existsByTeacherCode(String teacherCode);
     
     boolean existsByUserId(Long userId);

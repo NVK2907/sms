@@ -143,6 +143,29 @@ public class TeacherServiceImpl implements TeacherService {
     
     @Override
     @Transactional(readOnly = true)
+    public TeacherListResponse searchTeachers(String keyword, Pageable pageable) {
+        List<Teacher> teachers = teacherRepository.searchTeachers(keyword);
+        
+        // Convert to Page manually for pagination
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), teachers.size());
+        List<Teacher> pageContent = teachers.subList(start, end);
+        
+        List<TeacherResponse> teacherResponses = pageContent.stream()
+            .map(this::convertToTeacherResponse)
+            .collect(Collectors.toList());
+        
+        return new TeacherListResponse(
+            teacherResponses,
+            teachers.size(),
+            (int) Math.ceil((double) teachers.size() / pageable.getPageSize()),
+            pageable.getPageNumber(),
+            pageable.getPageSize()
+        );
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
     public List<TeacherResponse> getTeachersByDepartment(String department) {
         List<Teacher> teachers = teacherRepository.findByDepartment(department);
         

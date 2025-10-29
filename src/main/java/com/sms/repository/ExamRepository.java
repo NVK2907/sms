@@ -27,4 +27,7 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
     
     @Query("SELECT e FROM Exam e WHERE e.examDate >= :startDate AND e.examDate <= :endDate")
     List<Exam> findByExamDateBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    
+    @Query("SELECT e FROM Exam e JOIN Course c ON e.classId = c.id WHERE c.teacherId = :teacherId AND e.examDate = :examDate")
+    List<Exam> findByTeacherIdAndExamDate(@Param("teacherId") Long teacherId, @Param("examDate") LocalDate examDate);
 }
