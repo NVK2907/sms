@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,6 +30,18 @@ public class Teacher {
     
     @Column(name = "title", length = 50)
     private String title;
+    
+    @Column(name = "education_level", length = 100)
+    private String educationLevel;
+    
+    @Column(name = "experience_years")
+    private Integer experienceYears;
+    
+    @Column(name = "address", columnDefinition = "TEXT")
+    private String address;
+    
+    @Column(name = "hire_date")
+    private LocalDate hireDate;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;

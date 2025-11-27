@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +36,7 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public TeacherResponse createTeacher(TeacherRequest teacherRequest) {
         // Kiểm tra user tồn tại
-        User user = userRepository.findById(teacherRequest.getUserId())
+        userRepository.findById(teacherRequest.getUserId())
             .orElseThrow(() -> new UserNotFoundException(teacherRequest.getUserId()));
         
         // Kiểm tra mã giáo viên đã tồn tại
@@ -55,6 +54,10 @@ public class TeacherServiceImpl implements TeacherService {
         teacher.setTeacherCode(teacherRequest.getTeacherCode());
         teacher.setDepartment(teacherRequest.getDepartment());
         teacher.setTitle(teacherRequest.getTitle());
+        teacher.setEducationLevel(teacherRequest.getEducationLevel());
+        teacher.setExperienceYears(teacherRequest.getExperienceYears());
+        teacher.setAddress(teacherRequest.getAddress());
+        teacher.setHireDate(teacherRequest.getHireDate());
         
         Teacher savedTeacher = teacherRepository.save(teacher);
         
@@ -76,6 +79,18 @@ public class TeacherServiceImpl implements TeacherService {
         }
         if (teacherUpdateRequest.getTitle() != null) {
             teacher.setTitle(teacherUpdateRequest.getTitle());
+        }
+        if (teacherUpdateRequest.getEducationLevel() != null) {
+            teacher.setEducationLevel(teacherUpdateRequest.getEducationLevel());
+        }
+        if (teacherUpdateRequest.getExperienceYears() != null) {
+            teacher.setExperienceYears(teacherUpdateRequest.getExperienceYears());
+        }
+        if (teacherUpdateRequest.getAddress() != null) {
+            teacher.setAddress(teacherUpdateRequest.getAddress());
+        }
+        if (teacherUpdateRequest.getHireDate() != null) {
+            teacher.setHireDate(teacherUpdateRequest.getHireDate());
         }
         
         Teacher updatedTeacher = teacherRepository.save(teacher);
@@ -253,6 +268,10 @@ public class TeacherServiceImpl implements TeacherService {
             teacher.getTeacherCode(),
             teacher.getDepartment(),
             teacher.getTitle(),
+            teacher.getEducationLevel(),
+            teacher.getExperienceYears(),
+            teacher.getAddress(),
+            teacher.getHireDate(),
             teacher.getCreatedAt(),
             subjects
         );
