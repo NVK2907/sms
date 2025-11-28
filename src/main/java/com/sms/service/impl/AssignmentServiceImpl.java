@@ -31,7 +31,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public AssignmentResponse createAssignment(AssignmentRequest request) {
         // Kiểm tra lớp tồn tại
-        Course classEntity = courseRepository.findById(request.getClassId())
+        courseRepository.findById(request.getClassId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp với ID: " + request.getClassId()));
         
         Assignment assignment = new Assignment();

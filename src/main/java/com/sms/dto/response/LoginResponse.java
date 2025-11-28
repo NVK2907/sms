@@ -26,6 +26,8 @@ public class LoginResponse {
         private String email;
         private String fullName;
         private String phone;
+        private Long studentId;
+        private Long teacherId;
         private List<String> roles;
         private List<String> permissions;
     }

@@ -90,6 +90,19 @@ public class StudentAcademicServiceImpl implements StudentAcademicService {
     }
     
     @Override
+    @Transactional(readOnly = true)
+    public StudentClassResponse getClassDetails(Long studentId, Long classId) {
+        studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên với ID: " + studentId));
+        
+        Course clazz = courseRepository.findById(classId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp với ID: " + classId));
+        
+        boolean isRegistered = classStudentRepository.findByClassIdAndStudentId(classId, studentId).isPresent();
+        return convertToStudentClassResponse(clazz, isRegistered);
+    }
+    
+    @Override
     public void registerForClass(ClassRegistrationRequest request) {
         // Kiểm tra sinh viên tồn tại
         studentRepository.findById(request.getStudentId())

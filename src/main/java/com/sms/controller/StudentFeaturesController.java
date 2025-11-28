@@ -101,6 +101,16 @@ public class StudentFeaturesController {
         }
     }
     
+    @GetMapping("/{studentId}/classes/{classId}")
+    public ResponseEntity<StudentClassResponse> getClassDetails(@PathVariable Long studentId, @PathVariable Long classId) {
+        try {
+            StudentClassResponse classDetail = studentAcademicService.getClassDetails(studentId, classId);
+            return ResponseEntity.ok(classDetail);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
     @PostMapping("/register-class")
     public ResponseEntity<Void> registerForClass(@RequestBody ClassRegistrationRequest request) {
         try {

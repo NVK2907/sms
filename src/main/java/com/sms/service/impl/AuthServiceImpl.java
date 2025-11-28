@@ -27,6 +27,8 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final RolePermissionRepository rolePermissionRepository;
     private final PermissionRepository permissionRepository;
+    private final StudentRepository studentRepository;
+    private final TeacherRepository teacherRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     
@@ -84,6 +86,10 @@ public class AuthServiceImpl implements AuthService {
         userInfo.setEmail(user.getEmail());
         userInfo.setFullName(user.getFullName());
         userInfo.setPhone(user.getPhone());
+        studentRepository.findByUserId(user.getId())
+                .ifPresent(student -> userInfo.setStudentId(student.getId()));
+        teacherRepository.findByUserId(user.getId())
+                .ifPresent(teacher -> userInfo.setTeacherId(teacher.getId()));
         userInfo.setRoles(roleNames);
         userInfo.setPermissions(permissions);
         
