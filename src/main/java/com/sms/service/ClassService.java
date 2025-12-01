@@ -83,4 +83,9 @@ public interface ClassService {
      * Lấy danh sách sinh viên trong lớp
      */
     List<ClassResponse.StudentInfo> getClassStudents(Long classId);
+    
+    /**
+     * Import sinh viên vào lớp học từ file Excel
+     */
+    void importStudentsFromFile(Long classId, org.springframework.web.multipart.MultipartFile file);
 }

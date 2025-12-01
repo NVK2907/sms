@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -249,6 +250,23 @@ public class ClassController {
             return ResponseEntity.ok(ApiResponse.success("Lấy danh sách sinh viên trong lớp thành công", students));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+    
+    /**
+     * Import sinh viên vào lớp học từ file Excel
+     */
+    @PostMapping("/{classId}/import-students")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> importStudentsFromFile(
+            @PathVariable Long classId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            classService.importStudentsFromFile(classId, file);
+            return ResponseEntity.ok(ApiResponse.success("Import danh sách sinh viên thành công", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(e.getMessage()));
         }
     }

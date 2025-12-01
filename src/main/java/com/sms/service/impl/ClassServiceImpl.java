@@ -6,12 +6,18 @@ import com.sms.dto.response.ClassResponse;
 import com.sms.entity.*;
 import com.sms.repository.*;
 import com.sms.service.ClassService;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -288,6 +294,142 @@ public class ClassServiceImpl implements ClassService {
                 );
             })
             .collect(Collectors.toList());
+    }
+    
+    @Override
+    public void importStudentsFromFile(Long classId, MultipartFile file) {
+        // Kiểm tra lớp tồn tại
+        Course courseEntity = courseRepository.findById(classId)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp với ID: " + classId));
+        
+        // Kiểm tra file
+        if (file == null || file.isEmpty()) {
+            throw new RuntimeException("File không được để trống");
+        }
+        
+        String fileName = file.getOriginalFilename();
+        if (fileName == null || (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls"))) {
+            throw new RuntimeException("File phải là định dạng Excel (.xlsx hoặc .xls)");
+        }
+        
+        List<String> errors = new ArrayList<>();
+        int successCount = 0;
+        int skipCount = 0;
+        
+        try (InputStream inputStream = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(inputStream)) {
+            
+            Sheet sheet = workbook.getSheetAt(0);
+            
+            // Validate header (dòng 0): STT, Mã SV, Họ Và Tên
+            // Format: Cột 0 = STT, Cột 1 = Mã SV, Cột 2 = Họ Và Tên
+            Row headerRow = sheet.getRow(0);
+            if (headerRow != null) {
+                Cell headerCell2 = headerRow.getCell(1);
+                String header2 = getCellValueAsString(headerCell2);
+                
+                // Kiểm tra header có đúng format không (không bắt buộc, chỉ cảnh báo)
+                if (header2 != null && !header2.trim().toLowerCase().contains("mã")) {
+                    // Có thể log warning nhưng vẫn tiếp tục xử lý
+                }
+            }
+            
+            // Đọc từ dòng 1 (bỏ qua header ở dòng 0)
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null) continue;
+                
+                // Lấy mã sinh viên từ cột thứ 2 (index 1) - cột "Mã SV"
+                // Cột 0: STT, Cột 1: Mã SV, Cột 2: Họ Và Tên
+                Cell studentCodeCell = row.getCell(1);
+                if (studentCodeCell == null) continue;
+                
+                String studentCode = getCellValueAsString(studentCodeCell);
+                if (studentCode == null || studentCode.trim().isEmpty()) {
+                    continue;
+                }
+                
+                studentCode = studentCode.trim();
+                
+                // Tìm sinh viên theo mã
+                Student student = studentRepository.findByStudentCode(studentCode)
+                    .orElse(null);
+                
+                if (student == null) {
+                    errors.add("Dòng " + (rowIndex + 1) + ": Không tìm thấy sinh viên với mã " + studentCode);
+                    skipCount++;
+                    continue;
+                }
+                
+                // Kiểm tra sinh viên đã đăng ký lớp này chưa
+                if (classStudentRepository.findByClassIdAndStudentId(classId, student.getId()).isPresent()) {
+                    skipCount++;
+                    continue;
+                }
+                
+                // Kiểm tra lớp còn chỗ không
+                Long currentCount = classStudentRepository.countByClassId(classId);
+                if (currentCount >= courseEntity.getMaxStudent()) {
+                    errors.add("Dòng " + (rowIndex + 1) + ": Lớp đã đầy, không thể thêm thêm sinh viên");
+                    skipCount++;
+                    continue;
+                }
+                
+                // Thêm sinh viên vào lớp
+                ClassStudent classStudent = new ClassStudent();
+                classStudent.setClassId(classId);
+                classStudent.setStudentId(student.getId());
+                
+                try {
+                    classStudentRepository.save(classStudent);
+                    successCount++;
+                } catch (Exception e) {
+                    errors.add("Dòng " + (rowIndex + 1) + ": Lỗi khi thêm sinh viên " + studentCode + " - " + e.getMessage());
+                    skipCount++;
+                }
+            }
+            
+        } catch (IOException e) {
+            throw new RuntimeException("Lỗi khi đọc file Excel: " + e.getMessage());
+        }
+        
+        // Nếu có lỗi, throw exception với thông báo chi tiết
+        if (!errors.isEmpty()) {
+            String errorMessage = String.format(
+                "Import hoàn tất. Thành công: %d, Bỏ qua: %d. Các lỗi:\n%s",
+                successCount, skipCount, String.join("\n", errors)
+            );
+            throw new RuntimeException(errorMessage);
+        }
+    }
+    
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null) {
+            return null;
+        }
+        
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return cell.getDateCellValue().toString();
+                } else {
+                    // Lấy số nguyên nếu là số nguyên, ngược lại lấy số thực
+                    double numericValue = cell.getNumericCellValue();
+                    if (numericValue == (long) numericValue) {
+                        return String.valueOf((long) numericValue);
+                    } else {
+                        return String.valueOf(numericValue);
+                    }
+                }
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return null;
+        }
     }
     
     private ClassResponse convertToClassResponse(Course courseEntity) {

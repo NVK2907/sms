@@ -3,6 +3,7 @@ package com.sms.controller;
 import com.sms.dto.request.*;
 import com.sms.dto.response.*;
 import com.sms.service.*;
+import com.sms.service.AttendanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,9 @@ public class StudentFeaturesController {
     
     @Autowired
     private StudentAssignmentService studentAssignmentService;
+    
+    @Autowired
+    private AttendanceService attendanceService;
     
     // ========== THÔNG TIN CÁ NHÂN ==========
     
@@ -292,6 +296,18 @@ public class StudentFeaturesController {
         try {
             studentAssignmentService.updateSubmission(studentId, submissionId, request);
             return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    // ========== ĐIỂM DANH ==========
+    
+    @GetMapping("/{studentId}/attendance")
+    public ResponseEntity<List<AttendanceResponse>> getAttendanceByStudent(@PathVariable Long studentId) {
+        try {
+            List<AttendanceResponse> attendances = attendanceService.getAttendanceByStudent(studentId);
+            return ResponseEntity.ok(attendances);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
