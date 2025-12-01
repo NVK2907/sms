@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class StudentGradeResponse {
     private Long id;
+    private Long studentId;
     private String classCode;
     private String subjectName;
     private String subjectCode;

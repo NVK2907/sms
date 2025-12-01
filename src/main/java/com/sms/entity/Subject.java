@@ -27,4 +27,7 @@ public class Subject {
     
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+    
+    @Column(name = "status", length = 20)
+    private String status = "active";
 }

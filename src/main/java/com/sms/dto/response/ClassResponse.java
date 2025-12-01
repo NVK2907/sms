@@ -24,6 +24,7 @@ public class ClassResponse {
     private Integer maxStudent;
     private Integer currentStudentCount;
     private LocalDateTime createdAt;
+    private String status;
     private List<StudentInfo> students;
     
     @Data

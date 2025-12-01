@@ -14,4 +14,5 @@ public class SubjectResponse {
     private String subjectName;
     private Integer credit;
     private String description;
+    private String status;
 }

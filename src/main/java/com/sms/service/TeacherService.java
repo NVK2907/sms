@@ -38,12 +38,12 @@ public interface TeacherService {
     /**
      * Lấy danh sách giáo viên với phân trang
      */
-    TeacherListResponse getAllTeachers(Pageable pageable);
+    TeacherListResponse getAllTeachers(Pageable pageable, Boolean isActive);
     
     /**
      * Tìm kiếm giáo viên theo keyword
      */
-    TeacherListResponse searchTeachers(String keyword, Pageable pageable);
+    TeacherListResponse searchTeachers(String keyword, Pageable pageable, Boolean isActive);
     
     /**
      * Lấy danh sách giáo viên theo khoa/bộ môn

@@ -34,11 +34,11 @@ public class GradeServiceImpl implements GradeService {
     @Override
     public StudentGradeResponse createOrUpdateGrade(StudentGradeRequest request) {
         // Kiểm tra lớp tồn tại
-        Course classEntity = courseRepository.findById(request.getClassId())
+        courseRepository.findById(request.getClassId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp với ID: " + request.getClassId()));
         
         // Kiểm tra sinh viên tồn tại
-        Student student = studentRepository.findById(request.getStudentId())
+        studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên với ID: " + request.getStudentId()));
         
         // Tìm hoặc tạo grade record
@@ -147,10 +147,6 @@ public class GradeServiceImpl implements GradeService {
     }
     
     private StudentGradeResponse convertToStudentGradeResponse(Grade grade) {
-        Student student = studentRepository.findById(grade.getStudentId())
-                .orElse(new Student());
-        User user = userRepository.findById(student.getUserId())
-                .orElse(new User());
         
         Course classEntity = courseRepository.findById(grade.getClassId()).orElse(new Course());
         Long subjectId = classEntity.getSubjectId();
@@ -160,6 +156,7 @@ public class GradeServiceImpl implements GradeService {
         
         return new StudentGradeResponse(
                 grade.getId(),
+                grade.getStudentId(),
                 classEntity != null ? classEntity.getClassCode() : null,
                 subject != null ? subject.getSubjectName() : null,
                 subject != null ? subject.getSubjectCode() : null,

@@ -98,6 +98,7 @@ public class StudentGradeServiceImpl implements StudentGradeService {
         
         return new StudentGradeResponse(
                 grade.getId(),
+                grade.getStudentId(),
                 clazz.getClassCode(),
                 subject.getSubjectName(),
                 subject.getSubjectCode(),

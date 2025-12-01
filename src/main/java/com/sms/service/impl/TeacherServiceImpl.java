@@ -9,7 +9,6 @@ import com.sms.exception.UserNotFoundException;
 import com.sms.repository.*;
 import com.sms.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -140,31 +139,45 @@ public class TeacherServiceImpl implements TeacherService {
     
     @Override
     @Transactional(readOnly = true)
-    public TeacherListResponse getAllTeachers(Pageable pageable) {
-        Page<Teacher> teacherPage = teacherRepository.findAll(pageable);
+    public TeacherListResponse getAllTeachers(Pageable pageable, Boolean isActive) {
+        List<Teacher> teachers;
+        if (isActive != null) {
+            teachers = teacherRepository.findAllByIsActive(isActive);
+        } else {
+            teachers = teacherRepository.findAll();
+        }
         
-        List<TeacherResponse> teacherResponses = teacherPage.getContent().stream()
+        // Convert to Page manually for pagination
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), teachers.size());
+        List<Teacher> pageContent = start < teachers.size() ? 
+            teachers.subList(start, end) : 
+            List.of();
+        
+        List<TeacherResponse> teacherResponses = pageContent.stream()
             .map(this::convertToTeacherResponse)
             .collect(Collectors.toList());
         
         return new TeacherListResponse(
             teacherResponses,
-            teacherPage.getTotalElements(),
-            teacherPage.getTotalPages(),
-            teacherPage.getNumber(),
-            teacherPage.getSize()
+            teachers.size(),
+            (int) Math.ceil((double) teachers.size() / pageable.getPageSize()),
+            pageable.getPageNumber(),
+            pageable.getPageSize()
         );
     }
     
     @Override
     @Transactional(readOnly = true)
-    public TeacherListResponse searchTeachers(String keyword, Pageable pageable) {
-        List<Teacher> teachers = teacherRepository.searchTeachers(keyword);
+    public TeacherListResponse searchTeachers(String keyword, Pageable pageable, Boolean isActive) {
+        List<Teacher> teachers = teacherRepository.searchTeachers(keyword, isActive);
         
         // Convert to Page manually for pagination
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), teachers.size());
-        List<Teacher> pageContent = teachers.subList(start, end);
+        List<Teacher> pageContent = start < teachers.size() ? 
+            teachers.subList(start, end) : 
+            List.of();
         
         List<TeacherResponse> teacherResponses = pageContent.stream()
             .map(this::convertToTeacherResponse)
@@ -273,6 +286,7 @@ public class TeacherServiceImpl implements TeacherService {
             teacher.getAddress(),
             teacher.getHireDate(),
             teacher.getCreatedAt(),
+            user.getIsActive(),
             subjects
         );
     }

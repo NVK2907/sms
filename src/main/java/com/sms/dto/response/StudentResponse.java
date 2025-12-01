@@ -27,6 +27,7 @@ public class StudentResponse {
     private String major;
     private Integer courseYear;
     private LocalDateTime createdAt;
+    private Boolean isActive;
     private List<ClassInfo> classes;
     
     @Data

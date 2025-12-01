@@ -29,6 +29,7 @@ public class TeacherResponse {
     private String address;
     private LocalDate hireDate;
     private LocalDateTime createdAt;
+    private Boolean isActive;
     private List<SubjectInfo> subjects;
     
     @Data

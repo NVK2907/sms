@@ -113,13 +113,14 @@ public class TeacherController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) Boolean isActive) {
         try {
             Sort sort = sortDir.equalsIgnoreCase("desc") ? 
                 Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
             
-            TeacherListResponse teacherListResponse = teacherService.getAllTeachers(pageable);
+            TeacherListResponse teacherListResponse = teacherService.getAllTeachers(pageable, isActive);
             return ResponseEntity.ok(ApiResponse.success("Lấy danh sách giáo viên thành công", teacherListResponse));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -137,13 +138,14 @@ public class TeacherController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) Boolean isActive) {
         try {
             Sort sort = sortDir.equalsIgnoreCase("desc") ? 
                 Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
             
-            TeacherListResponse teacherListResponse = teacherService.searchTeachers(keyword, pageable);
+            TeacherListResponse teacherListResponse = teacherService.searchTeachers(keyword, pageable, isActive);
             return ResponseEntity.ok(ApiResponse.success("Tìm kiếm giáo viên thành công", teacherListResponse));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

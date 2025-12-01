@@ -157,7 +157,8 @@ public class SubjectServiceImpl implements SubjectService {
             subject.getSubjectCode(),
             subject.getSubjectName(),
             subject.getCredit(),
-            subject.getDescription()
+            subject.getDescription(),
+            subject.getStatus()
         );
     }
 }

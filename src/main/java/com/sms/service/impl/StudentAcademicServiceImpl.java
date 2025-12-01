@@ -5,6 +5,7 @@ import com.sms.dto.response.StudentClassResponse;
 import com.sms.entity.*;
 import com.sms.repository.*;
 import com.sms.service.StudentAcademicService;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -128,7 +129,17 @@ public class StudentAcademicServiceImpl implements StudentAcademicService {
         classStudent.setClassId(request.getClassId());
         classStudent.setStudentId(request.getStudentId());
         
-        classStudentRepository.save(classStudent);
+        try {
+            classStudentRepository.save(classStudent);
+        } catch (ConstraintViolationException e) {
+            // Nếu gặp lỗi duplicate key do sequence bị lệch, tự động fix sequence và thử lại
+            if (e.getSQLException().getSQLState().equals("23505")) {
+                classStudentRepository.fixSequence();
+                classStudentRepository.save(classStudent);
+            } else {
+                throw e;
+            }
+        }
     }
     
     @Override

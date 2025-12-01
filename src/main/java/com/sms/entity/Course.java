@@ -33,6 +33,9 @@ public class Course {
     @Column(name = "max_student")
     private Integer maxStudent = 50;
     
+    @Column(name = "status", length = 20)
+    private String status = "active";
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     

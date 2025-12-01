@@ -398,6 +398,7 @@ public class StudentServiceImpl implements StudentService {
             student.getMajor(),
             student.getCourseYear(),
             student.getCreatedAt(),
+            user.getIsActive(),
             classes
         );
     }

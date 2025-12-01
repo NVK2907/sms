@@ -323,6 +323,7 @@ public class ClassServiceImpl implements ClassService {
             courseEntity.getMaxStudent(),
             currentStudentCount.intValue(),
             courseEntity.getCreatedAt(),
+            courseEntity.getStatus(),
             students
         );
     }
